@@ -1,0 +1,41 @@
+{
+  "summary": "First iteration end-to-end test of Church Management System v1.0. All 35 backend pytest cases pass against the public preview URL covering auth (4 roles), RBAC, members CRUD with auto member_id (CHM00001), pastoral notes visibility, families with enrichment, contributions with auto receipt_no (RCP000001) + AED currency, monthly summary, dashboard (admin vs viewer finance gating), users super_admin-only CRUD (incl. cannot-delete-self), audit log, and all 7 report endpoints (PDF + Excel + Content-Disposition). Frontend smoke test as superadmin completed full flow: login -> dashboard (stats + upcoming birthdays) -> members list & search -> add member form -> save -> contributions page -> contribution form -> reports page (6 PDF + 6 Excel buttons) -> users page -> logout -> re-login as viewer (finance hidden, no Users nav). No critical issues.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/contributions/summary/{member_id}", "issue": "months dict keys are JSON-serialized as strings (1..12) — tests handle both, but spec sample expected int keys. Cosmetic."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "ContributionForm.jsx", "issues": ["React hydration warning in console: <span> cannot be child of <option>. The warning is triggered by an Emergent dev-tooling injected <span data-ve-dynamic=\"true\"> wrapper inside <option> elements. Functionality is unaffected, but the warning is noisy in console. Wrap member option text in a constant string template literal or use {`${m.first_name} ${m.last_name}`} directly without intermediate JSX expressions to avoid the wrapper, or ignore as a dev-only artifact."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_cms_backend.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "No blocking issues. Optional: silence the React hydration warning in ContributionForm.jsx select <option> (caused by Emergent dev-instrumentation wrapping the text)."
+  ],
+  "critical_code_review_comments": [
+    "server.py is ~764 lines and mixes models, routes, reports — consider splitting into modules (auth, members, contributions, reports) per the >700 LOC guideline.",
+    "CORS allow_origins defaults to '*' with allow_credentials=True which browsers ignore for credentialed requests; current frontend uses bearer tokens so this works, but should be tightened to explicit origin in prod.",
+    "create_member endpoint requires staff role but date_of_birth/membership_date/etc are accepted as free-form strings (no ISO validation) — risk of bad data. Consider Pydantic field validators or `datetime.date` typing.",
+    "PATCH /members/{id} re-uses MemberIn which requires all required fields — true partial updates aren't supported (clients must send full body). Consider a separate MemberUpdateIn with all-optional fields.",
+    "GET /contributions/summary returns months with integer keys but FastAPI/JSON serialises them as strings. Either document this or use string keys explicitly to keep contract stable.",
+    "Audit log lacks an index on timestamp; sort+limit on a growing collection will slow down. Add `audit_logs.create_index([('timestamp', -1)])` in startup."
+  ],
+  "updated_files": [
+    "/app/backend/tests/__init__.py (new)",
+    "/app/backend/tests/test_cms_backend.py (new)"
+  ],
+  "success_rate": {"backend": "100% (35/35)", "frontend": "100% (17/17 steps)"},
+  "test_credentials": "superadmin/Admin@123, admin/Admin@123, staff/Staff@123, viewer/View@123 — all working",
+  "seed_data_creation": "Backend tests created several TEST_-prefixed members (TEST_John Doe, TEST_Contrib Member, TEST_Fam Head/Spouse) and one contribution (RCP000002, Tithe AED 500 for Jan 2026). One UI-created member 'Frontend UITest<ts>'. These remain in DB.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend pytest suite lives at /app/backend/tests/test_cms_backend.py and is the regression source. Test data is prefixed with TEST_ (members + users) and UITest (frontend-created member). Currency is hard-coded AED. JWT bearer token stored in localStorage as 'cms_token'. Roles: super_admin > admin > staff > read_only. Pastoral 'notes' field is stripped for staff/viewer in GET /api/members/{id}. show_finance flag on /api/dashboard/summary controls tithes visibility for viewer."
+}
