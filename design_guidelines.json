@@ -1,0 +1,133 @@
+{
+  "theme": "Light",
+  "archetype": "Organic & Earthy",
+  "typography": {
+    "heading_font": "Cormorant Garamond",
+    "body_font": "Manrope",
+    "hierarchy": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-none font-medium",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl tracking-tight font-medium",
+      "h3": "text-xl sm:text-2xl tracking-tight font-medium",
+      "h4": "text-lg sm:text-xl font-medium",
+      "body": "text-base leading-relaxed",
+      "small_label": "text-sm uppercase tracking-[0.15em] font-semibold"
+    },
+    "rules": [
+      "No Inter or Roboto.",
+      "Use Cormorant Garamond for headings to convey dignity, warmth, and an editorial elegance.",
+      "Use Manrope for body text to ensure high readability in data-dense tables and forms.",
+      "Never center-align large blocks of text; favor left-alignment."
+    ]
+  },
+  "colors": {
+    "background": {
+      "primary": "#FDFBF7",
+      "secondary": "#F5F2EA",
+      "surface": "#FFFFFF"
+    },
+    "text": {
+      "primary": "#1C1917",
+      "secondary": "#57534E",
+      "muted": "#A8A29E",
+      "on_brand": "#FFFFFF"
+    },
+    "brand": {
+      "primary": "#2A4B3C",
+      "primary_hover": "#203A2E",
+      "accent": "#C49A45",
+      "accent_hover": "#A68036"
+    },
+    "border": "#E8E4D9",
+    "status": {
+      "success": "#345C49",
+      "warning": "#C49A45",
+      "danger": "#8B3A3A",
+      "info": "#4A6C6F"
+    },
+    "rules": [
+      "Avoid ALL purple/violet gradients.",
+      "Use #2A4B3C (Deep Olive) as the primary brand color to symbolize growth and peace.",
+      "Never use pure black; use #1C1917 (Stone 900) instead.",
+      "Use subtle borders (#E8E4D9) to separate content, avoiding heavy shadows.",
+      "Use solid, warm backgrounds instead of glassmorphism to convey groundedness."
+    ]
+  },
+  "layout_and_spacing": {
+    "spacing_scale": "p-1, p-2, p-4, p-6, p-8, p-12, p-16",
+    "rules": [
+      "Use generous spacing: minimum p-6 or p-8 inside cards and sections.",
+      "Control Room Grid for dashboard: grid-cols-1 md:grid-cols-3 lg:grid-cols-4 with gap-6.",
+      "Left-align forms, tables, and dense content for premium feel.",
+      "Containers must have internal padding to prevent text collision."
+    ]
+  },
+  "components": {
+    "cards": {
+      "style": "bg-white rounded-xl border border-[#E8E4D9] shadow-sm",
+      "padding": "p-6 sm:p-8"
+    },
+    "buttons": {
+      "primary": "bg-[#2A4B3C] text-white hover:bg-[#203A2E] rounded-md px-6 py-2.5 transition-colors font-medium",
+      "secondary": "bg-[#F5F2EA] text-[#1C1917] hover:bg-[#E8E4D9] rounded-md px-6 py-2.5 transition-colors font-medium",
+      "outline": "border border-[#2A4B3C] text-[#2A4B3C] hover:bg-[#FDFBF7] rounded-md px-6 py-2.5 transition-colors"
+    },
+    "tables": {
+      "style": "w-full text-left border-collapse",
+      "header": "border-b-2 border-[#E8E4D9] text-[#57534E] font-medium py-4 px-4 text-sm uppercase tracking-wider",
+      "row": "border-b border-[#E8E4D9] hover:bg-[#FDFBF7] transition-colors",
+      "cell": "py-4 px-4 text-[#1C1917]"
+    },
+    "forms": {
+      "input": "w-full border border-[#E8E4D9] rounded-md px-4 py-2.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#2A4B3C]/20 focus:border-[#2A4B3C] transition-all",
+      "label": "block text-sm font-medium text-[#57534E] mb-1.5"
+    },
+    "navigation": {
+      "style": "sticky top-0 z-50 bg-[#FDFBF7]/90 backdrop-blur-md border-b border-[#E8E4D9]"
+    },
+    "rules": [
+      "Use shadcn/ui components but customize them with the colors and typography above.",
+      "Forms and tables must feel premium, spacious, and highly legible.",
+      "Do NOT use HTML <select> or <input type='date'>; use shadcn Dropdown/Select and Calendar."
+    ]
+  },
+  "media_and_icons": {
+    "icons": "lucide-react",
+    "image_urls": [
+      {
+        "category": "login_background",
+        "url": "https://images.unsplash.com/photo-1473177104440-ffee2f376098?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwxfHxjaHVyY2glMjBhcmNoaXRlY3R1cmUlMjBpbnRlcmlvciUyMGxpZ2h0fGVufDB8fHx8MTc4MDU1NzI4OHww&ixlib=rb-4.1.0&q=85",
+        "description": "Empty cathedral interior with beautiful natural light for the login page background."
+      }
+    ],
+    "rules": [
+      "Do NOT use placeholder images.",
+      "Use lucide-react for all icons, maintaining a consistent stroke width (1.5 or 2)."
+    ]
+  },
+  "motion": {
+    "rules": [
+      "Keep animations minimalist: subtle fade-ins and micro-interactions on hover/focus.",
+      "Hover states must transition smoothly (e.g., transition-colors duration-200).",
+      "Respect prefers-reduced-motion."
+    ]
+  },
+  "accessibility": {
+    "rules": [
+      "All interactive elements MUST include a data-testid attribute in kebab-case based on role (e.g., data-testid='login-submit-button').",
+      "Ensure contrast ratios meet APCA standards.",
+      "Focus states must have higher contrast than default."
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Build the Church Management System (CMS) v1.0 following these guidelines.",
+    "Implement Authentication: Username + Password (NOT email). Include Roles (Super Admin, Admin, Staff, Read-Only).",
+    "Dashboard: Show active members, new members this month, tithes/offerings comparison, upcoming birthdays/anniversaries (7 days), quick-add buttons, and recent activity log.",
+    "Member Management: Advanced search/filter. Member profile with tabs: Personal, Contact, Family, Tithes & Offerings, Pastoral Notes (admin-only), Documents.",
+    "Family Management: View head of household, members, ages, anniversary.",
+    "Tithes & Offerings: Currency is AED ONLY. Form includes member, date, type (Tithe/Offering/Seed/Pledge/First Fruit/Special), amount, payment mode, ref no, receipt no. Yearly table view per member.",
+    "Reports: Implement UI for multiple report types with PDF and Excel export buttons.",
+    "User Management & Audit Trail: Views for Super Admin.",
+    "Do NOT implement external notifications; everything is in-app only.",
+    "Use existing shadcn/ui components in /app/frontend/src/components/ui/."
+  ]
+}
