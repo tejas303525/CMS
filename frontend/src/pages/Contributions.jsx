@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import api from "@/lib/api";
 import { CONTRIBUTION_TYPES, PAYMENT_MODES, formatAED, formatDate, MONTHS, apiErrorMessage } from "@/lib/constants";
-import { Plus, Receipt, Trash2 } from "lucide-react";
+import { Plus, Receipt, Trash2, Download } from "lucide-react";
+import { downloadAuthed } from "@/pages/MemberDetail";
 
 export default function Contributions() {
   const navigate = useNavigate();
@@ -93,6 +94,14 @@ export default function Contributions() {
                 <td>{c.payment_mode}</td>
                 <td className="text-right font-medium">{formatAED(c.amount)}</td>
                 <td className="text-right">
+                  <button
+                    onClick={() => downloadAuthed(`/contributions/${c.id}/receipt`, `receipt_${c.receipt_no}.pdf`)}
+                    className="inline-flex items-center gap-1 text-xs mr-3 brand-text hover:underline"
+                    data-testid={`download-receipt-${c.receipt_no}`}
+                    title="Download receipt PDF"
+                  >
+                    <Download className="w-4 h-4" /> Receipt
+                  </button>
                   <button onClick={() => remove(c.id)} className="text-xs" style={{ color: "var(--danger)" }} data-testid={`delete-contribution-${c.receipt_no}`}>
                     <Trash2 className="w-4 h-4" />
                   </button>

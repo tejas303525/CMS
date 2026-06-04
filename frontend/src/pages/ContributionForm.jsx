@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import api from "@/lib/api";
 import { CONTRIBUTION_TYPES, PAYMENT_MODES, apiErrorMessage, formatAED } from "@/lib/constants";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Download } from "lucide-react";
+import { downloadAuthed } from "@/pages/MemberDetail";
 
 export default function ContributionForm() {
   const [params] = useSearchParams();
@@ -93,7 +94,17 @@ export default function ContributionForm() {
               <div className="font-medium">Saved · Receipt {lastReceipt.receipt_no}</div>
               <div className="text-xs">{lastReceipt.member_name} · {formatAED(lastReceipt.amount)} · {lastReceipt.contribution_type}</div>
             </div>
-            <button type="button" className="btn-secondary text-sm" onClick={() => navigate("/contributions")}>Done</button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="btn-secondary text-sm flex items-center gap-2"
+                onClick={() => downloadAuthed(`/contributions/${lastReceipt.id}/receipt`, `receipt_${lastReceipt.receipt_no}.pdf`)}
+                data-testid="contrib-download-receipt"
+              >
+                <Download className="w-4 h-4" /> Download receipt
+              </button>
+              <button type="button" className="btn-secondary text-sm" onClick={() => navigate("/contributions")}>Done</button>
+            </div>
           </div>
         )}
 

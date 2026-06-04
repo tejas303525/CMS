@@ -486,6 +486,111 @@ async def delete_contribution(contribution_id: str, user: dict = Depends(require
     await audit(user, "delete", "contribution", contribution_id)
     return {"ok": True}
 
+@api.get("/contributions/{contribution_id}/receipt")
+async def contribution_receipt(contribution_id: str, user: dict = Depends(require_role("admin"))):
+    c = await db.contributions.find_one({"id": contribution_id}, {"_id": 0})
+    if not c:
+        raise HTTPException(status_code=404, detail="Contribution not found")
+    member = await db.members.find_one({"id": c["member_id"]}, {"_id": 0}) or {}
+
+    buf = io.BytesIO()
+    doc = SimpleDocTemplate(buf, pagesize=A4, topMargin=40, bottomMargin=40, leftMargin=48, rightMargin=48)
+    styles = getSampleStyleSheet()
+    brand = colors.HexColor("#2A4B3C")
+    accent = colors.HexColor("#C49A45")
+    muted = colors.HexColor("#57534E")
+
+    title_style = ParagraphStyle("Title", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=22, textColor=brand, alignment=0)
+    label_style = ParagraphStyle("Lbl", parent=styles["Normal"], fontSize=8, textColor=muted, leading=10, spaceAfter=2)
+    value_style = ParagraphStyle("Val", parent=styles["Normal"], fontSize=11, textColor=colors.HexColor("#1C1917"), leading=14)
+    small = ParagraphStyle("Small", parent=styles["Normal"], fontSize=9, textColor=muted)
+    big_amount = ParagraphStyle("Amt", parent=styles["Title"], fontName="Helvetica-Bold", fontSize=28, textColor=brand, alignment=0)
+
+    elements = []
+    # Header band
+    header_tbl = Table([[
+        Paragraph("OFFICIAL RECEIPT", ParagraphStyle("H", parent=styles["Normal"], fontSize=9, textColor=accent, leading=12, spaceAfter=4)),
+    ], [
+        Paragraph("Church Management System", title_style)
+    ]], colWidths=[None])
+    header_tbl.setStyle(TableStyle([("BOTTOMPADDING", (0, 0), (-1, -1), 0), ("TOPPADDING", (0, 0), (-1, -1), 0)]))
+    elements += [header_tbl, Spacer(1, 6),
+                 Paragraph(f"Receipt No: <b>{c['receipt_no']}</b> &nbsp;&nbsp;|&nbsp;&nbsp; Date: <b>{c['contribution_date']}</b>", small),
+                 Spacer(1, 18)]
+
+    # Member block
+    member_name = f"{member.get('first_name','')} {member.get('last_name','')}".strip() or c.get("member_name", "")
+    member_tbl = Table([
+        [Paragraph("RECEIVED FROM", label_style)],
+        [Paragraph(member_name, value_style)],
+        [Paragraph(f"Member ID: {member.get('member_id', c.get('member_external_id',''))}", small)],
+    ], colWidths=[None])
+    member_tbl.setStyle(TableStyle([("BOTTOMPADDING", (0, 0), (-1, -1), 1), ("TOPPADDING", (0, 0), (-1, -1), 1)]))
+    elements += [member_tbl, Spacer(1, 14)]
+
+    # Amount block (highlighted)
+    amount_box = Table([
+        [Paragraph("AMOUNT RECEIVED", label_style)],
+        [Paragraph(f"AED {c['amount']:,.2f}", big_amount)],
+    ], colWidths=[None])
+    amount_box.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F5F2EA")),
+        ("BOX", (0, 0), (-1, -1), 0.5, colors.HexColor("#E8E4D9")),
+        ("LEFTPADDING", (0, 0), (-1, -1), 16),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 16),
+        ("TOPPADDING", (0, 0), (-1, -1), 10),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
+    ]))
+    elements += [amount_box, Spacer(1, 18)]
+
+    # Details grid
+    rows = [
+        ["Contribution Type", c.get("contribution_type", "")],
+        ["Payment Mode", c.get("payment_mode", "")],
+        ["Reference No.", c.get("reference_no") or "—"],
+        ["Currency", c.get("currency", "AED")],
+        ["Recorded By", c.get("recorded_by", "")],
+        ["Notes", c.get("notes") or "—"],
+    ]
+    details = Table(rows, colWidths=[140, None])
+    details.setStyle(TableStyle([
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica"),
+        ("FONTNAME", (1, 0), (1, -1), "Helvetica-Bold"),
+        ("TEXTCOLOR", (0, 0), (0, -1), muted),
+        ("TEXTCOLOR", (1, 0), (1, -1), colors.HexColor("#1C1917")),
+        ("FONTSIZE", (0, 0), (-1, -1), 10),
+        ("LINEBELOW", (0, 0), (-1, -2), 0.25, colors.HexColor("#E8E4D9")),
+        ("LEFTPADDING", (0, 0), (-1, -1), 0),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 8),
+        ("TOPPADDING", (0, 0), (-1, -1), 8),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+    elements += [details, Spacer(1, 24)]
+
+    # Footer
+    elements += [
+        Paragraph("Thank you for your faithful giving.", ParagraphStyle("F1", parent=styles["Normal"], fontSize=11, textColor=brand, fontName="Helvetica-Oblique")),
+        Spacer(1, 24),
+        Table([["", ""]], colWidths=[180, 180], style=TableStyle([
+            ("LINEABOVE", (0, 0), (0, 0), 0.5, colors.HexColor("#1C1917")),
+            ("LINEABOVE", (1, 0), (1, 0), 0.5, colors.HexColor("#1C1917")),
+        ])),
+        Table([
+            [Paragraph("Authorized signature", small), Paragraph("Recipient signature", small)],
+        ], colWidths=[180, 180]),
+        Spacer(1, 30),
+        Paragraph(f"Generated {now_utc().strftime('%Y-%m-%d %H:%M UTC')} · This is a system-generated receipt.", small),
+    ]
+
+    doc.build(elements)
+    buf.seek(0)
+    return StreamingResponse(
+        buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="receipt_{c["receipt_no"]}.pdf"'},
+    )
+
 @api.get("/contributions/summary/{member_id}")
 async def member_contribution_summary(member_id: str, year: int, user: dict = Depends(require_role("admin"))):
     docs = await db.contributions.find({"member_id": member_id, "year": year}, {"_id": 0}).to_list(1000)

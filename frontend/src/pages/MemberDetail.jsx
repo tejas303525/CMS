@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { formatDate, formatAED, MONTHS, ageFromDob } from "@/lib/constants";
-import { ArrowLeft, Mail, Phone, MessageCircle, MapPin, Edit, Plus, Receipt } from "lucide-react";
+import { ArrowLeft, Mail, Phone, MessageCircle, MapPin, Edit, Plus, Receipt, Download } from "lucide-react";
 
 const TABS = [
   { key: "personal", label: "Personal" },
@@ -207,10 +207,10 @@ export default function MemberDetail() {
                   </a>
                 </div>
                 <table className="cms-table">
-                  <thead><tr><th>Date</th><th>Receipt</th><th>Type</th><th>Mode</th><th className="text-right">Amount</th></tr></thead>
+                  <thead><tr><th>Date</th><th>Receipt</th><th>Type</th><th>Mode</th><th className="text-right">Amount</th><th></th></tr></thead>
                   <tbody>
                     {summary.transactions.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center" style={{ color: "var(--text-secondary)" }}>No contributions recorded.</td></tr>
+                      <tr><td colSpan={6} className="text-center" style={{ color: "var(--text-secondary)" }}>No contributions recorded.</td></tr>
                     ) : summary.transactions.map((t) => (
                       <tr key={t.id}>
                         <td>{formatDate(t.contribution_date)}</td>
@@ -218,6 +218,15 @@ export default function MemberDetail() {
                         <td>{t.contribution_type}</td>
                         <td>{t.payment_mode}</td>
                         <td className="text-right">{formatAED(t.amount)}</td>
+                        <td className="text-right">
+                          <button
+                            onClick={() => downloadAuthed(`/contributions/${t.id}/receipt`, `receipt_${t.receipt_no}.pdf`)}
+                            className="inline-flex items-center gap-1 text-xs brand-text hover:underline"
+                            data-testid={`download-receipt-${t.receipt_no}`}
+                          >
+                            <Download className="w-3.5 h-3.5" /> Receipt
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
