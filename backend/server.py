@@ -179,6 +179,7 @@ async def startup():
     await db.members.create_index("member_id", unique=True)
     await db.contributions.create_index([("member_id", 1), ("contribution_date", -1)])
     await db.contributions.create_index("receipt_no", unique=True)
+    await db.audit_logs.create_index([("timestamp", -1)])
 
     admin_username = os.environ.get("ADMIN_USERNAME", "superadmin")
     admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@123")
