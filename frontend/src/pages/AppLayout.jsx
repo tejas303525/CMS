@@ -35,7 +35,7 @@ export default function AppLayout() {
           <div className="flex items-center gap-2">
             <Church className="w-6 h-6 brand-text" />
             <div>
-              <div className="font-display text-xl leading-none">Ecclesia</div>
+              <div className="font-display text-xl leading-none">City revival ag church</div>
               <div className="small-label mt-1">Church CMS</div>
             </div>
           </div>

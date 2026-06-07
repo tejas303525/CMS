@@ -113,13 +113,13 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="mt-10 text-xs leading-relaxed p-4 rounded-md" style={{ background: "var(--bg-secondary)", color: "var(--text-secondary)" }} data-testid="seeded-credentials">
+          {/* <div className="mt-10 text-xs leading-relaxed p-4 rounded-md" style={{ background: "var(--bg-secondary)", color: "var(--text-secondary)" }} data-testid="seeded-credentials">
             <div className="small-label mb-2">Seeded accounts</div>
             <div>superadmin / Admin@123 — Super Admin</div>
             <div>admin / Admin@123 — Admin</div>
             <div>staff / Staff@123 — Staff</div>
             <div>viewer / View@123 — Read-Only</div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
