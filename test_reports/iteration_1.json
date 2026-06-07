@@ -10,7 +10,7 @@
     "ui_bugs": [],
     "integration_issues": [],
     "design_issues": [
-      {"screen": "ContributionForm.jsx", "issues": ["React hydration warning in console: <span> cannot be child of <option>. The warning is triggered by an Emergent dev-tooling injected <span data-ve-dynamic=\"true\"> wrapper inside <option> elements. Functionality is unaffected, but the warning is noisy in console. Wrap member option text in a constant string template literal or use {`${m.first_name} ${m.last_name}`} directly without intermediate JSX expressions to avoid the wrapper, or ignore as a dev-only artifact."]}
+      {"screen": "ContributionForm.jsx", "issues": ["React hydration warning in console: <span> cannot be child of <option>. The warning is triggered by an legacy visual-edit tooling injected <span data-ve-dynamic=\"true\"> wrapper inside <option> elements. Functionality is unaffected, but the warning is noisy in console. Wrap member option text in a constant string template literal or use {`${m.first_name} ${m.last_name}`} directly without intermediate JSX expressions to avoid the wrapper, or ignore as a dev-only artifact."]}
     ]
   },
   "test_report_links": [
@@ -18,7 +18,7 @@
     "/app/test_reports/pytest/pytest_results.xml"
   ],
   "action_items": [
-    "No blocking issues. Optional: silence the React hydration warning in ContributionForm.jsx select <option> (caused by Emergent dev-instrumentation wrapping the text)."
+    "No blocking issues. Optional: silence the React hydration warning in ContributionForm.jsx select <option> (caused by legacy visual-edit instrumentation wrapping the text)."
   ],
   "critical_code_review_comments": [
     "server.py is ~764 lines and mixes models, routes, reports — consider splitting into modules (auth, members, contributions, reports) per the >700 LOC guideline.",
@@ -39,3 +39,4 @@
   "main_agent_can_self_test": true,
   "context_for_next_testing_agent": "Backend pytest suite lives at /app/backend/tests/test_cms_backend.py and is the regression source. Test data is prefixed with TEST_ (members + users) and UITest (frontend-created member). Currency is hard-coded AED. JWT bearer token stored in localStorage as 'cms_token'. Roles: super_admin > admin > staff > read_only. Pastoral 'notes' field is stripped for staff/viewer in GET /api/members/{id}. show_finance flag on /api/dashboard/summary controls tithes visibility for viewer."
 }
+

@@ -8,9 +8,11 @@ import os
 import uuid
 import pytest
 import requests
+from io import BytesIO
+from zipfile import ZipFile
 from datetime import datetime, timezone
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://dev-forge-97.preview.emergentagent.com").rstrip("/")
+BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "http://localhost:8001").rstrip("/")
 API = f"{BASE_URL}/api"
 
 CREDS = {
@@ -318,49 +320,65 @@ class TestAuditLog:
 
 
 # ---------- Reports ----------
+def assert_excel_download(response: requests.Response, filename: str) -> None:
+    assert response.status_code == 200, response.text
+    assert response.headers.get("Content-Type", "").startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    disposition = response.headers.get("Content-Disposition", "")
+    assert "attachment" in disposition
+    assert f"filename=\"{filename}\"" in disposition
+    assert response.content[:2] == b"PK"
+    with ZipFile(BytesIO(response.content)) as xlsx:
+        assert "[Content_Types].xml" in xlsx.namelist()
+
+
+def assert_pdf_download(response: requests.Response, filename: str) -> None:
+    assert response.status_code == 200, response.text
+    assert response.headers.get("Content-Type", "").startswith("application/pdf")
+    disposition = response.headers.get("Content-Disposition", "")
+    assert "attachment" in disposition
+    assert f"filename=\"{filename}\"" in disposition
+    assert response.content[:4] == b"%PDF"
+
+
 class TestReports:
     def test_members_excel(self, tokens):
         r = requests.get(f"{API}/reports/members", params={"format": "excel"}, headers=H(tokens["staff"]))
-        assert r.status_code == 200
-        assert "spreadsheetml" in r.headers.get("Content-Type", "")
-        assert "attachment" in r.headers.get("Content-Disposition", "")
+        assert_excel_download(r, "member_directory.xlsx")
 
     def test_members_pdf(self, tokens):
         r = requests.get(f"{API}/reports/members", params={"format": "pdf"}, headers=H(tokens["staff"]))
-        assert r.status_code == 200
-        assert r.headers.get("Content-Type", "").startswith("application/pdf")
-        assert r.content[:4] == b"%PDF"
+        assert_pdf_download(r, "member_directory.pdf")
 
     def test_birthdays_requires_month(self, tokens):
         r = requests.get(f"{API}/reports/birthdays", headers=H(tokens["staff"]))
         assert r.status_code == 422
         r2 = requests.get(f"{API}/reports/birthdays", params={"month": 7, "format": "excel"}, headers=H(tokens["staff"]))
-        assert r2.status_code == 200
+        assert_excel_download(r2, "birthdays_July.xlsx")
 
     def test_anniversaries(self, tokens):
         r = requests.get(f"{API}/reports/anniversaries", params={"month": 11, "format": "pdf"}, headers=H(tokens["staff"]))
-        assert r.status_code == 200
+        assert_pdf_download(r, "anniversaries_November.pdf")
 
     def test_contrib_monthly_admin_only(self, tokens):
         r = requests.get(f"{API}/reports/contributions-monthly", params={"year": 2026, "month": 1, "format": "excel"}, headers=H(tokens["staff"]))
         assert r.status_code == 403
         r2 = requests.get(f"{API}/reports/contributions-monthly", params={"year": 2026, "month": 1, "format": "pdf"}, headers=H(tokens["admin"]))
-        assert r2.status_code == 200
+        assert_pdf_download(r2, "contributions_2026_01.pdf")
 
     def test_non_contributing(self, tokens):
         r = requests.get(f"{API}/reports/non-contributing", params={"months": 2, "format": "excel"}, headers=H(tokens["admin"]))
-        assert r.status_code == 200
+        assert_excel_download(r, "non_contributing.xlsx")
 
     def test_families_report(self, tokens):
         r = requests.get(f"{API}/reports/families", params={"format": "excel"}, headers=H(tokens["staff"]))
-        assert r.status_code == 200
+        assert_excel_download(r, "families.xlsx")
 
     def test_member_statement(self, tokens):
-        # use one existing member
         members = requests.get(f"{API}/members", headers=H(tokens["admin"])).json()
         if not members:
             pytest.skip("No members in db")
         mid = members[0]["id"]
         r = requests.get(f"{API}/reports/member-statement/{mid}", params={"year": 2026, "format": "pdf"}, headers=H(tokens["admin"]))
-        assert r.status_code == 200
-        assert r.content[:4] == b"%PDF"
+        assert_pdf_download(r, "statement_{}_2026.pdf".format(members[0]["member_id"]))
