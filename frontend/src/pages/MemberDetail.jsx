@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { formatDate, formatAED, MONTHS, ageFromDob } from "@/lib/constants";
+import { formatDate, formatINR, MONTHS, ageFromDob } from "@/lib/constants";
 import { ArrowLeft, Mail, Phone, MessageCircle, MapPin, Edit, Plus, Receipt, Download } from "lucide-react";
 
 const TABS = [
@@ -178,17 +178,17 @@ export default function MemberDetail() {
                     return (
                       <tr key={m} data-testid={`month-row-${idx+1}`}>
                         <td>{m}</td>
-                        <td className="text-right">{empty ? "—" : formatAED(v.Tithe)}</td>
-                        <td className="text-right">{empty ? "—" : formatAED(v.Offering)}</td>
-                        <td className="text-right">{empty ? "—" : formatAED(v.Other)}</td>
-                        <td className="text-right font-medium">{empty ? "—" : formatAED(v.Total)}</td>
+                        <td className="text-right">{empty ? "—" : formatINR(v.Tithe)}</td>
+                        <td className="text-right">{empty ? "—" : formatINR(v.Offering)}</td>
+                        <td className="text-right">{empty ? "—" : formatINR(v.Other)}</td>
+                        <td className="text-right font-medium">{empty ? "—" : formatINR(v.Total)}</td>
                       </tr>
                     );
                   })}
                   <tr style={{ background: "var(--bg-secondary)" }}>
                     <td className="font-semibold uppercase text-xs tracking-wider">Annual total</td>
                     <td></td><td></td><td></td>
-                    <td className="text-right font-display text-xl">{formatAED(summary.annual_total)}</td>
+                    <td className="text-right font-display text-xl">{formatINR(summary.annual_total)}</td>
                   </tr>
                 </tbody>
               </table>
@@ -217,7 +217,7 @@ export default function MemberDetail() {
                         <td className="font-mono text-xs">{t.receipt_no}</td>
                         <td>{t.contribution_type}</td>
                         <td>{t.payment_mode}</td>
-                        <td className="text-right">{formatAED(t.amount)}</td>
+                        <td className="text-right">{formatINR(t.amount)}</td>
                         <td className="text-right">
                           <button
                             onClick={() => downloadAuthed(`/contributions/${t.id}/receipt`, `receipt_${t.receipt_no}.pdf`)}

@@ -6,7 +6,7 @@
 ## User Choices
 - **Scope**: Full v1.0
 - **Auth**: Username + password (NOT email); roles Super Admin / Admin / Staff / Read-Only
-- **Currency**: AED only (hard-coded)
+- **Currency**: INR only (hard-coded)
 - **Reports**: PDF + Excel
 - **Notifications**: In-app only (no external email/WhatsApp)
 
@@ -25,7 +25,7 @@
 - ✅ Auth: JWT username/password, 4 seeded users, RBAC via `require_role` dep
 - ✅ Members: CRUD, auto `CHM00001` IDs, advanced search (name/ID/phone/email/ministry/status/birthday month/anniversary month), pastoral notes visibility restricted to admin+, soft-delete
 - ✅ Families: head-of-household + members with relationship_type, enriched view with ages & wedding anniversary
-- ✅ Tithes & Offerings: contribution recording, auto `RCP000001` receipts, AED currency, monthly per-member summary table (Tithe / Offering / Other / Total + annual)
+- ✅ Tithes & Offerings: contribution recording, auto `RCP000001` receipts, INR currency, monthly per-member summary table (Tithe / Offering / Other / Total + annual)
 - ✅ Dashboard: active members, new this month, tithes vs last month, upcoming birthdays/anniversaries (7 days), recent activity, quick-add buttons
 - ✅ Reports: Members, Birthdays, Anniversaries, Monthly Contributions, Member Statement, Non-Contributing, Families — all with PDF + Excel
 - ✅ Users module (Super Admin) + Audit Trail viewer (Admin+)

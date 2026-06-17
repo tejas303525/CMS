@@ -178,7 +178,7 @@ class TestContributions:
         assert ok.status_code == 200, ok.text
         d = ok.json()
         assert d["receipt_no"].startswith("RCP") and len(d["receipt_no"]) == 9
-        assert d["currency"] == "AED"
+        assert d["currency"] == "INR"
         assert d["year"] == 2026 and d["month"] == 1
         TestContributions.contribution_id = d["id"]
 

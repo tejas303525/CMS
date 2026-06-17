@@ -468,7 +468,7 @@ async def create_contribution(body: ContributionIn, user: dict = Depends(require
     doc = body.model_dump()
     doc["id"] = str(uuid.uuid4())
     doc["receipt_no"] = await _next_receipt_no()
-    doc["currency"] = "AED"
+    doc["currency"] = "INR"
     doc["year"] = dt.year
     doc["month"] = dt.month
     doc["member_name"] = f"{member['first_name']} {member['last_name']}"
@@ -531,7 +531,7 @@ async def contribution_receipt(contribution_id: str, user: dict = Depends(requir
     # Amount block (highlighted)
     amount_box = Table([
         [Paragraph("AMOUNT RECEIVED", label_style)],
-        [Paragraph(f"AED {c['amount']:,.2f}", big_amount)],
+        [Paragraph(f"INR {c['amount']:,.2f}", big_amount)],
     ], colWidths=[None])
     amount_box.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#F5F2EA")),
@@ -548,7 +548,7 @@ async def contribution_receipt(contribution_id: str, user: dict = Depends(requir
         ["Contribution Type", c.get("contribution_type", "")],
         ["Payment Mode", c.get("payment_mode", "")],
         ["Reference No.", c.get("reference_no") or "—"],
-        ["Currency", c.get("currency", "AED")],
+        ["Currency", c.get("currency", "INR")],
         ["Recorded By", c.get("recorded_by", "")],
         ["Notes", c.get("notes") or "—"],
     ]
@@ -777,7 +777,7 @@ async def report_anniversaries(month: int = Query(..., ge=1, le=12), format: Lit
 @api.get("/reports/contributions-monthly")
 async def report_contrib_monthly(year: int, month: int = Query(..., ge=1, le=12), format: Literal["pdf", "excel"] = "excel", user: dict = Depends(require_role("admin"))):
     docs = await db.contributions.find({"year": year, "month": month}, {"_id": 0}).to_list(5000)
-    headers = ["Date", "Receipt #", "Member ID", "Member", "Type", "Amount (AED)", "Payment Mode", "Reference"]
+    headers = ["Date", "Receipt #", "Member ID", "Member", "Type", "Amount (INR)", "Payment Mode", "Reference"]
     rows = [[d.get("contribution_date",""), d.get("receipt_no",""), d.get("member_external_id",""), d.get("member_name",""), d.get("contribution_type",""), f"{d.get('amount',0):.2f}", d.get("payment_mode",""), d.get("reference_no","")] for d in docs]
     total = sum(d.get("amount", 0) for d in docs)
     rows.append(["", "", "", "", "TOTAL", f"{total:.2f}", "", ""])
@@ -796,7 +796,7 @@ async def report_member_statement(member_id: str, year: int, format: Literal["pd
     if not member:
         raise HTTPException(status_code=404, detail="Member not found")
     summary = await member_contribution_summary(member_id, year, user)  # type: ignore
-    headers = ["Month", "Tithe (AED)", "Offering (AED)", "Other (AED)", "Total (AED)"]
+    headers = ["Month", "Tithe (INR)", "Offering (INR)", "Other (INR)", "Total (INR)"]
     rows = []
     for m in range(1, 13):
         v = summary["months"][m]

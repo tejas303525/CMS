@@ -17,8 +17,8 @@ export const MONTHS = [
   "July","August","September","October","November","December",
 ];
 
-export const formatAED = (n) =>
-  `AED ${Number(n || 0).toLocaleString("en-AE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+export const formatINR = (n) =>
+  `INR ${Number(n || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export const formatDate = (iso) => {
   if (!iso) return "—";
