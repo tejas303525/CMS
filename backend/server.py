@@ -548,7 +548,7 @@ async def contribution_receipt(contribution_id: str, user: dict = Depends(requir
         ["Contribution Type", c.get("contribution_type", "")],
         ["Payment Mode", c.get("payment_mode", "")],
         ["Reference No.", c.get("reference_no") or "—"],
-        ["Currency", c.get("currency", "INR")],
+        ["Currency", "INR"],
         ["Recorded By", c.get("recorded_by", "")],
         ["Notes", c.get("notes") or "—"],
     ]
@@ -867,3 +867,6 @@ app.add_middleware(
 @app.on_event("shutdown")
 async def shutdown():
     client.close()
+
+
+

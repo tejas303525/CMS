@@ -178,3 +178,4 @@ const UpcomingBirthdayBadge = ({ dob }) => {
   } catch {}
   return null;
 };
+

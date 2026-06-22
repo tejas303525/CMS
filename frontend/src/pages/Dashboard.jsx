@@ -193,3 +193,4 @@ const UpcomingList = ({ title, icon: Icon, items, testId, emptyText }) => (
     )}
   </div>
 );
+

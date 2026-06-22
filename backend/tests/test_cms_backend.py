@@ -382,3 +382,4 @@ class TestReports:
         mid = members[0]["id"]
         r = requests.get(f"{API}/reports/member-statement/{mid}", params={"year": 2026, "format": "pdf"}, headers=H(tokens["admin"]))
         assert_pdf_download(r, "statement_{}_2026.pdf".format(members[0]["member_id"]))
+
