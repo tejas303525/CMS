@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import api from "@/lib/api";
-import { CONTRIBUTION_TYPES, PAYMENT_MODES, apiErrorMessage, formatAED } from "@/lib/constants";
+import { CONTRIBUTION_TYPES, PAYMENT_MODES, apiErrorMessage, formatINR } from "@/lib/constants";
 import { ArrowLeft, Save, Download } from "lucide-react";
 import { downloadAuthed } from "@/pages/MemberDetail";
 
@@ -68,7 +68,7 @@ export default function ContributionForm() {
           </select>
         </div>
         <div>
-          <label className="field-label">Amount (AED) *</label>
+          <label className="field-label">Amount (INR) *</label>
           <input type="number" min="0" step="0.01" required className="input-field" value={form.amount} onChange={set("amount")} data-testid="contrib-amount-input" />
         </div>
         <div>
@@ -92,7 +92,7 @@ export default function ContributionForm() {
           <div className="md:col-span-2 p-4 rounded-lg flex items-center justify-between" style={{ background: "rgba(52,92,73,0.08)", color: "var(--success)" }} data-testid="contrib-saved-toast">
             <div>
               <div className="font-medium">Saved · Receipt {lastReceipt.receipt_no}</div>
-              <div className="text-xs">{lastReceipt.member_name} · {formatAED(lastReceipt.amount)} · {lastReceipt.contribution_type}</div>
+              <div className="text-xs">{lastReceipt.member_name} · {formatINR(lastReceipt.amount)} · {lastReceipt.contribution_type}</div>
             </div>
             <div className="flex gap-2">
               <button
@@ -118,3 +118,5 @@ export default function ContributionForm() {
     </div>
   );
 }
+
+

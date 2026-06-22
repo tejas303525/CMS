@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { formatAED, formatDate } from "@/lib/constants";
+import { formatINR, formatDate } from "@/lib/constants";
 import {
   UserPlus,
   Plus,
@@ -89,14 +89,14 @@ export default function Dashboard() {
           <>
             <StatCard
               label="Tithes (This Month)"
-              value={formatAED(data.tithes_this_month)}
+              value={formatINR(data.tithes_this_month)}
               icon={delta >= 0 ? TrendingUp : TrendingDown}
               testId="stat-tithes-month"
               sub={deltaPct != null ? `${delta >= 0 ? "▲" : "▼"} ${Math.abs(deltaPct)}% vs last month` : "No prior month data"}
             />
             <StatCard
               label="Tithes (Last Month)"
-              value={formatAED(data.tithes_last_month)}
+              value={formatINR(data.tithes_last_month)}
               icon={TrendingUp}
               testId="stat-tithes-last-month"
             />
@@ -193,3 +193,4 @@ const UpcomingList = ({ title, icon: Icon, items, testId, emptyText }) => (
     )}
   </div>
 );
+

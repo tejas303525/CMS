@@ -1,5 +1,5 @@
 {
-  "summary": "First iteration end-to-end test of Church Management System v1.0. All 35 backend pytest cases pass against the public preview URL covering auth (4 roles), RBAC, members CRUD with auto member_id (CHM00001), pastoral notes visibility, families with enrichment, contributions with auto receipt_no (RCP000001) + AED currency, monthly summary, dashboard (admin vs viewer finance gating), users super_admin-only CRUD (incl. cannot-delete-self), audit log, and all 7 report endpoints (PDF + Excel + Content-Disposition). Frontend smoke test as superadmin completed full flow: login -> dashboard (stats + upcoming birthdays) -> members list & search -> add member form -> save -> contributions page -> contribution form -> reports page (6 PDF + 6 Excel buttons) -> users page -> logout -> re-login as viewer (finance hidden, no Users nav). No critical issues.",
+  "summary": "First iteration end-to-end test of Church Management System v1.0. All 35 backend pytest cases pass against the public preview URL covering auth (4 roles), RBAC, members CRUD with auto member_id (CHM00001), pastoral notes visibility, families with enrichment, contributions with auto receipt_no (RCP000001) + INR currency, monthly summary, dashboard (admin vs viewer finance gating), users super_admin-only CRUD (incl. cannot-delete-self), audit log, and all 7 report endpoints (PDF + Excel + Content-Disposition). Frontend smoke test as superadmin completed full flow: login -> dashboard (stats + upcoming birthdays) -> members list & search -> add member form -> save -> contributions page -> contribution form -> reports page (6 PDF + 6 Excel buttons) -> users page -> logout -> re-login as viewer (finance hidden, no Users nav). No critical issues.",
   "backend_issues": {
     "critical": [],
     "minor": [
@@ -34,9 +34,10 @@
   ],
   "success_rate": {"backend": "100% (35/35)", "frontend": "100% (17/17 steps)"},
   "test_credentials": "superadmin/Admin@123, admin/Admin@123, staff/Staff@123, viewer/View@123 — all working",
-  "seed_data_creation": "Backend tests created several TEST_-prefixed members (TEST_John Doe, TEST_Contrib Member, TEST_Fam Head/Spouse) and one contribution (RCP000002, Tithe AED 500 for Jan 2026). One UI-created member 'Frontend UITest<ts>'. These remain in DB.",
+  "seed_data_creation": "Backend tests created several TEST_-prefixed members (TEST_John Doe, TEST_Contrib Member, TEST_Fam Head/Spouse) and one contribution (RCP000002, Tithe INR 500 for Jan 2026). One UI-created member 'Frontend UITest<ts>'. These remain in DB.",
   "retest_needed": false,
   "main_agent_can_self_test": true,
-  "context_for_next_testing_agent": "Backend pytest suite lives at /app/backend/tests/test_cms_backend.py and is the regression source. Test data is prefixed with TEST_ (members + users) and UITest (frontend-created member). Currency is hard-coded AED. JWT bearer token stored in localStorage as 'cms_token'. Roles: super_admin > admin > staff > read_only. Pastoral 'notes' field is stripped for staff/viewer in GET /api/members/{id}. show_finance flag on /api/dashboard/summary controls tithes visibility for viewer."
+  "context_for_next_testing_agent": "Backend pytest suite lives at /app/backend/tests/test_cms_backend.py and is the regression source. Test data is prefixed with TEST_ (members + users) and UITest (frontend-created member). Currency is hard-coded INR. JWT bearer token stored in localStorage as 'cms_token'. Roles: super_admin > admin > staff > read_only. Pastoral 'notes' field is stripped for staff/viewer in GET /api/members/{id}. show_finance flag on /api/dashboard/summary controls tithes visibility for viewer."
 }
+
 

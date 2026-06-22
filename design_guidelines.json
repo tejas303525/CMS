@@ -124,7 +124,7 @@
     "Dashboard: Show active members, new members this month, tithes/offerings comparison, upcoming birthdays/anniversaries (7 days), quick-add buttons, and recent activity log.",
     "Member Management: Advanced search/filter. Member profile with tabs: Personal, Contact, Family, Tithes & Offerings, Pastoral Notes (admin-only), Documents.",
     "Family Management: View head of household, members, ages, anniversary.",
-    "Tithes & Offerings: Currency is AED ONLY. Form includes member, date, type (Tithe/Offering/Seed/Pledge/First Fruit/Special), amount, payment mode, ref no, receipt no. Yearly table view per member.",
+    "Tithes & Offerings: Currency is INR ONLY. Form includes member, date, type (Tithe/Offering/Seed/Pledge/First Fruit/Special), amount, payment mode, ref no, receipt no. Yearly table view per member.",
     "Reports: Implement UI for multiple report types with PDF and Excel export buttons.",
     "User Management & Audit Trail: Views for Super Admin.",
     "Do NOT implement external notifications; everything is in-app only.",

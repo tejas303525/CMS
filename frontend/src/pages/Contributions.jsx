@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import api from "@/lib/api";
-import { CONTRIBUTION_TYPES, PAYMENT_MODES, formatAED, formatDate, MONTHS, apiErrorMessage } from "@/lib/constants";
+import { CONTRIBUTION_TYPES, PAYMENT_MODES, formatINR, formatDate, MONTHS, apiErrorMessage } from "@/lib/constants";
 import { Plus, Receipt, Trash2, Download } from "lucide-react";
 import { downloadAuthed } from "@/pages/MemberDetail";
 
@@ -60,7 +60,7 @@ export default function Contributions() {
         </select>
         <div className="surface-card p-3 flex items-center justify-between" style={{ background: "var(--bg-secondary)", border: "none" }}>
           <span className="small-label">Total</span>
-          <span className="font-display text-2xl">{formatAED(total)}</span>
+          <span className="font-display text-2xl">{formatINR(total)}</span>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ export default function Contributions() {
                 </td>
                 <td>{c.contribution_type}</td>
                 <td>{c.payment_mode}</td>
-                <td className="text-right font-medium">{formatAED(c.amount)}</td>
+                <td className="text-right font-medium">{formatINR(c.amount)}</td>
                 <td className="text-right">
                   <button
                     onClick={() => downloadAuthed(`/contributions/${c.id}/receipt`, `receipt_${c.receipt_no}.pdf`)}
@@ -114,3 +114,4 @@ export default function Contributions() {
     </div>
   );
 }
+

@@ -173,3 +173,4 @@ const Select = ({ value, onChange, options }) => (
     {options.map((o) => <option key={o} value={o}>{o}</option>)}
   </select>
 );
+

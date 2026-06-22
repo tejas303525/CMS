@@ -71,7 +71,7 @@ export default function Reports() {
         <div className="small-label">Insights</div>
         <h1 className="font-display text-4xl mt-2">Reports</h1>
         <p className="text-sm mt-2" style={{ color: "var(--text-secondary)" }}>
-          Export church records in PDF or Excel. All financial figures in <strong>AED</strong>.
+          Export church records in PDF or Excel. All financial figures in <strong>INR</strong>.
         </p>
       </div>
 
@@ -144,3 +144,5 @@ function ReportCard({ report }) {
     </div>
   );
 }
+
+
