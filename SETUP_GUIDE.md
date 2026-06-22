@@ -1,201 +1,99 @@
 # CMS Setup Guide
 
-This guide sets up the Church Management System on a Windows machine for local or LAN-only use.
+This guide sets up the Church Management System on a Windows machine using Docker.
 
-## 1. Required Tools
+## 1. Install Docker Desktop
 
-Install these first:
+Download and install Docker Desktop for Windows:
 
-- Python 3.11
-- Node.js LTS
-- MongoDB Community Server
-- MongoDB Compass
-- Git, optional
-- Visual Studio Code, optional
-
-Recommended Python version:
-
-```powershell
-py -3.11 --version
+```text
+https://www.docker.com/products/docker-desktop
 ```
 
-Do not use Python 3.14 for this project. Some backend packages do not support it yet.
+After installing, open Docker Desktop and wait until the status bar at the bottom shows **"Engine running"**.
+
+Verify in PowerShell:
+
+```powershell
+docker --version
+docker compose version
+```
 
 ## 2. Project Folder
 
 Open PowerShell and go to the project:
 
 ```powershell
-cd C:\Users\IT\Desktop\CMS\CMS
+cd C:\Users\IT\Desktop\CMS
 ```
 
 If your project is in another location, use that path instead.
 
-## 3. MongoDB Setup
+## 3. Environment File
 
-Open MongoDB Compass.
+Create a file named `.env` in the project root folder:
 
-Create:
-
-```text
-Database Name: church
-Collection Name: users
+```powershell
+notepad .env
 ```
 
-Do not enable Time-Series.
-
-The app will create/use other collections automatically:
-
-```text
-members
-contributions
-families
-audit_logs
-```
-
-For local use, MongoDB should run at:
-
-```text
-mongodb://localhost:27017
-```
-
-## 4. Backend Environment File
-
-Create this file:
-
-```text
-C:\Users\IT\Desktop\CMS\CMS\backend\.env
-```
-
-Paste:
+Paste the following and save:
 
 ```env
-MONGO_URL=mongodb://localhost:27017
-DB_NAME=church
 JWT_SECRET=change-this-to-a-long-random-secret
-CORS_ORIGINS=http://localhost:3000
 ```
 
-To generate a random JWT secret in PowerShell:
+To generate a proper random secret, run this in PowerShell and copy the output into the `.env` file:
 
 ```powershell
 $bytes = New-Object byte[] 32; [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes); [Convert]::ToBase64String($bytes)
 ```
 
-For LAN access, replace `CORS_ORIGINS` with your PC IP:
+## 4. Build the Docker Images
 
-```env
-CORS_ORIGINS=http://192.168.1.25:3000
+In PowerShell, from the project root:
+
+```powershell
+.\build.ps1
 ```
 
-## 5. Frontend Environment File
+If PowerShell blocks the script, run this once and then retry:
 
-Create this file:
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+The build will take several minutes the first time. You will see Docker downloading base images and installing dependencies. Subsequent builds are much faster.
+
+When finished you should see:
 
 ```text
-C:\Users\IT\Desktop\CMS\CMS\frontend\.env
+Done.
+  cms-backend:0.0.1
+  cms-frontend:0.1.0
 ```
 
-For local use, paste:
-
-```env
-REACT_APP_BACKEND_URL=http://localhost:8001
-```
-
-For LAN access, use your PC IP:
-
-```env
-REACT_APP_BACKEND_URL=http://192.168.1.25:8001
-```
-
-## 6. Backend Setup
-
-Open PowerShell:
+## 5. Start the App
 
 ```powershell
-cd C:\Users\IT\Desktop\CMS\CMS\backend
+docker compose up -d
 ```
 
-Create a Python 3.11 virtual environment:
-
-```powershell
-py -3.11 -m venv .venv
-```
-
-Activate it:
-
-```powershell
-.\.venv\Scripts\activate
-```
-
-Confirm Python version:
-
-```powershell
-python --version
-```
-
-It should show Python 3.11.x.
-
-Install dependencies:
-
-```powershell
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install -r requirements.txt
-```
-
-Run backend:
-
-```powershell
-python -m uvicorn server:app --host 0.0.0.0 --port 8001 --reload
-```
-
-Check API:
-
-```text
-http://localhost:8001/api/
-```
-
-API docs:
-
-```text
-http://localhost:8001/docs
-```
-
-## 7. Frontend Setup
-
-Open a second PowerShell terminal:
-
-```powershell
-cd C:\Users\IT\Desktop\CMS\CMS\frontend
-```
-
-Install dependencies:
-
-```powershell
-npm install
-```
-
-If npm reports dependency conflicts, run:
-
-```powershell
-npm install --legacy-peer-deps
-```
-
-Run frontend:
-
-```powershell
-npm start
-```
-
-Open:
+This starts MongoDB, the backend, and the frontend. Open the app in a browser:
 
 ```text
 http://localhost:3000
 ```
 
-## 8. Default Login
+To stop the app:
 
-The app seeds these users on startup:
+```powershell
+docker compose down
+```
+
+## 6. Default Login
+
+The app creates these accounts on first startup:
 
 ```text
 superadmin / Admin@123
@@ -204,66 +102,54 @@ staff      / Staff@123
 viewer     / View@123
 ```
 
-Important: change these passwords before sharing the app on your network.
+Change these passwords before sharing the app on your network.
 
-## 9. LAN Access
+## 7. LAN Access
 
-Find your PC IP:
+To let other computers on the same network use the app, find this machine's IP address:
 
 ```powershell
 ipconfig
 ```
 
-Look for IPv4 Address, for example:
-
-```text
-192.168.1.25
-```
-
-Backend should run with:
-
-```powershell
-python -m uvicorn server:app --host 0.0.0.0 --port 8001 --reload
-```
-
-Frontend can run with:
-
-```powershell
-$env:HOST="0.0.0.0"
-npm start
-```
-
-Other users on the same network open:
+Look for **IPv4 Address**, for example `192.168.1.25`. Other users open:
 
 ```text
 http://192.168.1.25:3000
 ```
 
-Allow these Windows Firewall inbound ports on the host PC:
+Allow these ports through Windows Firewall on the host PC:
 
 ```text
-3000
-8001
+3000   (app)
+8001   (backend API)
 ```
 
-Do not expose MongoDB port `27017` unless the database must be accessed from another machine.
+Do not expose port `27017`.
 
-## 10. Common Problems
+## 8. Upgrading
 
-### Python shows 3.14
-
-Delete wrong virtual environments and recreate with Python 3.11:
+After any code change, rebuild the images and restart:
 
 ```powershell
-deactivate
-Remove-Item -Recurse -Force .venv -ErrorAction SilentlyContinue
-Remove-Item -Recurse -Force venv -ErrorAction SilentlyContinue
-py -3.11 -m venv .venv
-.\.venv\Scripts\activate
-python --version
+.\build.ps1
+docker compose down
+docker compose up -d
 ```
 
-### PowerShell blocks venv activation
+## 9. Common Problems
+
+### Docker Desktop not starting
+
+Make sure virtualisation is enabled in your PC's BIOS. On Windows 11 it is usually on by default. If Docker Desktop still fails to start, enable WSL 2 by running in PowerShell as Administrator:
+
+```powershell
+wsl --install
+```
+
+Then restart the PC and open Docker Desktop again.
+
+### build.ps1 is blocked by PowerShell
 
 Run once:
 
@@ -271,69 +157,39 @@ Run once:
 Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 ```
 
-Then:
+### App not loading at localhost:3000
+
+Check that all three containers are running:
 
 ```powershell
-.\.venv\Scripts\activate
+docker compose ps
 ```
 
-### Login gives 404
-
-Check frontend `.env`:
-
-```env
-REACT_APP_BACKEND_URL=http://localhost:8001
-```
-
-Restart frontend after changing `.env`:
+View logs if something is wrong:
 
 ```powershell
-Ctrl + C
-npm start
+docker compose logs frontend
+docker compose logs backend
 ```
 
-### npm says craco is not recognized
+### Login fails or shows an error
 
-Dependencies were not installed. Run:
+Check that `.env` exists in the project root and contains `JWT_SECRET`. Then restart:
 
 ```powershell
-cd C:\Users\IT\Desktop\CMS\CMS\frontend
-npm install
-npm start
+docker compose down
+docker compose up -d
 ```
 
-### requirements.txt install fails with grpc conflict
+### Data is lost after restarting
 
-You are probably using Python 3.14. Use Python 3.11.
+This should not happen. Data is stored in a Docker volume that persists across restarts. If you ran `docker compose down -v`, the volume was deleted. This is only needed when you want to wipe everything and start fresh.
 
-### Backend cannot connect to database
-
-Check MongoDB service is running and `.env` has:
-
-```env
-MONGO_URL=mongodb://localhost:27017
-DB_NAME=church
-```
-
-## 11. Quick Start Commands
-
-Backend:
+## 10. Quick Start (after first setup)
 
 ```powershell
-cd C:\Users\IT\Desktop\CMS\CMS\backend
-.\.venv\Scripts\activate
-python -m uvicorn server:app --host 0.0.0.0 --port 8001 --reload
+cd C:\Users\IT\Desktop\CMS
+docker compose up -d
 ```
 
-Frontend:
-
-```powershell
-cd C:\Users\IT\Desktop\CMS\CMS\frontend
-npm start
-```
-
-Open:
-
-```text
-http://localhost:3000
-```
+Open `http://localhost:3000`.

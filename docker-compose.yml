@@ -8,8 +8,7 @@ services:
       - "27017:27017"
 
   backend:
-    build:
-      context: ./backend
+    image: cms-backend:${BACKEND_VERSION:-0.0.1}
     restart: unless-stopped
     environment:
       MONGO_URL: mongodb://mongo:27017
@@ -21,8 +20,7 @@ services:
       - "8001:8001"
 
   frontend:
-    build:
-      context: ./frontend
+    image: cms-frontend:${FRONTEND_VERSION:-0.1.0}
     restart: unless-stopped
     depends_on:
       - backend
