@@ -1,8 +1,0 @@
-.git
-backend/.venv
-backend/__pycache__
-backend/.env
-frontend/node_modules
-frontend/build
-frontend/.env
-test_reports

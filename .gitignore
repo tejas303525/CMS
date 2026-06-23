@@ -27,8 +27,12 @@ next-env.d.ts
 
 # Production builds
 /build
+/target
 dist/
 dist
+
+# Generated secrets
+.jwt_secret
 
 # Environment files (comprehensive coverage)
 
