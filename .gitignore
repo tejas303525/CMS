@@ -87,3 +87,7 @@ credentials.json
 *.key
 .credentials
 backend/cms.db
+
+# Runtime generated files
+*.db
+.jwt_secret
