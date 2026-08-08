@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import {
   MEMBERSHIP_STATUSES, GENDERS, MARITAL, apiErrorMessage,
 } from "@/lib/constants";
-import { ArrowLeft, Save, Trash2 } from "lucide-react";
+import { ArrowLeft, ImagePlus, Save, Trash2, X } from "lucide-react";
 
 const empty = {
   first_name: "", middle_name: "", last_name: "",
@@ -28,6 +28,7 @@ export default function MemberForm() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [photoName, setPhotoName] = useState("");
 
   useEffect(() => {
     if (!isEdit) return;
@@ -42,6 +43,34 @@ export default function MemberForm() {
     ...f,
     ministries: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
   }));
+
+  const setPhoto = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      e.target.value = "";
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setError("Photo must be 2 MB or smaller.");
+      e.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setForm((f) => ({ ...f, photo_url: reader.result || "" }));
+      setPhotoName(file.name);
+      setError("");
+    };
+    reader.onerror = () => setError("Could not read the selected photo.");
+    reader.readAsDataURL(file);
+  };
+
+  const clearPhoto = () => {
+    setForm((f) => ({ ...f, photo_url: "" }));
+    setPhotoName("");
+  };
 
   const submit = async (e) => {
     e.preventDefault();
@@ -89,7 +118,34 @@ export default function MemberForm() {
             <Field label="Last name *"><input className="input-field" required value={form.last_name} onChange={set("last_name")} data-testid="last-name-input" /></Field>
             <Field label="Gender"><Select value={form.gender} onChange={set("gender")} options={GENDERS} /></Field>
             <Field label="Date of birth *"><input type="date" required className="input-field" value={form.date_of_birth || ""} onChange={set("date_of_birth")} data-testid="dob-input" /></Field>
-            <Field label="Photo URL (optional)"><input className="input-field" value={form.photo_url} onChange={set("photo_url")} /></Field>
+            <Field label="Photo">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center text-sm font-semibold"
+                     style={{ background: "var(--bg-secondary)", color: "var(--text-muted)" }}>
+                  {form.photo_url ? (
+                    <img src={form.photo_url} alt="Member" className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{form.first_name?.[0] || ""}{form.last_name?.[0] || ""}</span>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <label className="btn-secondary inline-flex items-center gap-2 cursor-pointer">
+                    <ImagePlus className="w-4 h-4" /> Attach photo
+                    <input type="file" accept="image/*" className="hidden" onChange={setPhoto} data-testid="member-photo-input" />
+                  </label>
+                  {form.photo_url && (
+                    <button type="button" className="ml-2 text-sm inline-flex items-center gap-1" style={{ color: "var(--danger)" }} onClick={clearPhoto}>
+                      <X className="w-4 h-4" /> Remove
+                    </button>
+                  )}
+                  {(photoName || form.photo_url) && (
+                    <div className="text-xs mt-2 truncate" style={{ color: "var(--text-muted)" }}>
+                      {photoName || "Stored member photo"}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </Field>
           </Grid>
         </Section>
 

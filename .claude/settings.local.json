@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find C:/Users/IT/Desktop/CMS/ -maxdepth 2 -name *.bat -o -name *.ps1 -o -name *.cmd -o -name *.vbs -o -name *.lnk)",
+      "Bash(find C:/Users/IT/Desktop/CMS/ -name *.exe)",
+      "Bash(grep -o http://localhost[^'']* C:/Users/IT/Desktop/CMS/CMS/target/windows/build/static/js/main.bdf40f38.js)",
+      "Bash(find C:/Users/IT/Desktop/CMS/CMS/ -maxdepth 3 \\\\\\(-name *.bat -o -name *.ps1 -o -name *.cmd -o -name *.sh -o -name Makefile \\\\\\))",
+      "Bash(find C:/Users/IT/Desktop/CMS/CMS/ -maxdepth 4 \\\\\\(-name *.spec -o -name setup.py -o -name pyproject.toml -o -name *.cfg -o -name Makefile \\\\\\))",
+      "Bash(grep -v .venv find C:/Users/IT/Desktop/CMS/CMS/ -maxdepth 4 -name *build* -o -name *package* -o -name *release*)"
+    ]
+  }
+}

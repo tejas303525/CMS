@@ -9,13 +9,15 @@ import uuid
 import logging
 import bcrypt
 import jwt
+import base64
+import binascii
 from datetime import datetime, timezone, timedelta, date
 from typing import List, Optional, Literal
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request, Query
 from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 from openpyxl import Workbook
 from reportlab.lib.pagesizes import A4, landscape
@@ -118,6 +120,30 @@ class MemberIn(BaseModel):
     country_origin: Optional[str] = ""
     country_current: Optional[str] = ""
     photo_url: Optional[str] = ""
+
+    @field_validator("photo_url")
+    @classmethod
+    def validate_photo_url(cls, value: Optional[str]) -> Optional[str]:
+        if not value:
+            return value
+        if value.startswith(("http://", "https://")):
+            return value
+        header, separator, encoded = value.partition(",")
+        allowed_headers = {
+            "data:image/jpeg;base64",
+            "data:image/png;base64",
+            "data:image/webp;base64",
+            "data:image/gif;base64",
+        }
+        if separator != "," or header.lower() not in allowed_headers:
+            raise ValueError("Photo must be a JPEG, PNG, WebP, or GIF image.")
+        try:
+            decoded = base64.b64decode(encoded, validate=True)
+        except (binascii.Error, ValueError):
+            raise ValueError("Photo data is not valid base64.")
+        if len(decoded) > 2 * 1024 * 1024:
+            raise ValueError("Photo must be 2 MB or smaller.")
+        return value
 
 class FamilyIn(BaseModel):
     family_name: str

@@ -50,9 +50,13 @@ export default function MemberDetail() {
       <div className="surface-card p-8 mb-6">
         <div className="flex items-start justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center text-white font-display text-3xl"
+            <div className="w-20 h-20 rounded-full overflow-hidden flex items-center justify-center text-white font-display text-3xl"
                  style={{ background: "var(--brand)" }}>
-              {member.first_name[0]}{member.last_name[0]}
+              {member.photo_url ? (
+                <img src={member.photo_url} alt={`${member.first_name} ${member.last_name}`} className="w-full h-full object-cover" />
+              ) : (
+                <span>{member.first_name[0]}{member.last_name[0]}</span>
+              )}
             </div>
             <div>
               <div className="small-label">{member.member_id}</div>
