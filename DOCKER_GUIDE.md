@@ -108,6 +108,43 @@ docker compose up -d
 
 ---
 
+## Backup & restore
+
+**Always back up before pulling new code, rebuilding images, or running `docker compose down -v`.** A backup is a full dump of the `church` database (members, contributions, families, users, audit logs) plus `.env`.
+
+### Take a backup
+
+```powershell
+.\backup.ps1
+```
+
+(`./backup.sh` on Linux/macOS.) This writes a timestamped folder under `backups\` containing `church-backup.gz` and a copy of `.env`. The `mongo` container must be running first (`docker compose up -d`).
+
+### Restore a backup
+
+```powershell
+.\restore.ps1 -ArchivePath backups\20260101-120000\church-backup.gz
+```
+
+(`./restore.sh backups/20260101-120000/church-backup.gz` on Linux/macOS.) This **replaces** the current database with the backup's contents — it will ask for confirmation first.
+
+`backups/` is gitignored since dumps contain real member data. Keep a copy somewhere outside the project folder (a USB drive, cloud storage) in case the machine itself is lost.
+
+### Before any upgrade
+
+```powershell
+.\backup.ps1
+git pull
+.\build.ps1
+docker compose down
+docker compose up -d
+docker compose ps
+```
+
+If anything looks wrong after the upgrade, restore the backup taken in step 1 and investigate before trying again.
+
+---
+
 ## Moving to another Windows PC
 
 ### Option A — Rebuild on the new PC (recommended)
@@ -144,7 +181,7 @@ docker compose up -d
 |---|---|
 | `3000` | Frontend (open this in the browser) |
 | `8001` | Backend API |
-| `27017` | MongoDB (do not expose outside the PC) |
+| `27017` | MongoDB — internal only, not published outside the Docker network |
 
 ---
 
@@ -159,3 +196,5 @@ docker compose up -d
 | Check status | `docker compose ps` |
 | Wipe data | `docker compose down -v` |
 | List local images | `docker images` |
+| Back up database | `.\backup.ps1` |
+| Restore database | `.\restore.ps1 -ArchivePath <file>` |

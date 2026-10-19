@@ -91,3 +91,6 @@ backend/cms.db
 # Runtime generated files
 *.db
 .jwt_secret
+
+# Database backups (contain real member PII - never commit)
+/backups/
