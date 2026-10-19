@@ -339,7 +339,9 @@ async def list_members(
     ministry: Optional[str] = None,
     birthday_month: Optional[int] = None,
     anniversary_month: Optional[int] = None,
-    limit: int = 200,
+    limit: int = 2000,
+    page: Optional[int] = None,
+    page_size: int = 50,
     user: dict = Depends(get_current_user),
 ):
     query = {}
@@ -352,19 +354,23 @@ async def list_members(
             {"member_id": rx}, {"phone_primary": rx}, {"phone_secondary": rx},
             {"whatsapp": rx}, {"email": rx},
         ]
-    docs = await db.members.find(query, {"_id": 0}).sort("created_at", -1).to_list(limit)
-    # client-side filter for month based fields
-    def month_match(value: Optional[str], m: int) -> bool:
-        if not value:
-            return False
-        try:
-            return int(value[5:7]) == m
-        except Exception:
-            return False
     if birthday_month:
-        docs = [d for d in docs if month_match(d.get("date_of_birth"), birthday_month)]
+        query["date_of_birth"] = {"$regex": f"^\\d{{4}}-{birthday_month:02d}-"}
     if anniversary_month:
-        docs = [d for d in docs if month_match(d.get("wedding_anniversary"), anniversary_month)]
+        query["wedding_anniversary"] = {"$regex": f"^\\d{{4}}-{anniversary_month:02d}-"}
+
+    if page is not None:
+        page = max(page, 1)
+        page_size = max(1, min(page_size, 500))
+        total = await db.members.count_documents(query)
+        docs = await db.members.find(query, {"_id": 0}) \
+            .sort("created_at", -1) \
+            .skip((page - 1) * page_size) \
+            .limit(page_size) \
+            .to_list(page_size)
+        return {"items": docs, "total": total, "page": page, "page_size": page_size}
+
+    docs = await db.members.find(query, {"_id": 0}).sort("created_at", -1).to_list(limit)
     return docs
 
 @api.post("/members")

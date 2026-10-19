@@ -18,26 +18,35 @@ const StatusBadge = ({ status }) => {
 export default function MembersList() {
   const { hasRole } = useAuth();
   const navigate = useNavigate();
+  const PAGE_SIZE = 50;
   const [members, setMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [status, setStatus] = useState("");
   const [birthdayMonth, setBirthdayMonth] = useState("");
   const [anniversaryMonth, setAnniversaryMonth] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
-  const load = () => {
+  const load = (targetPage = page) => {
     setLoading(true);
-    const params = {};
+    const params = { page: targetPage, page_size: PAGE_SIZE };
     if (q) params.q = q;
     if (status) params.status = status;
     if (birthdayMonth) params.birthday_month = birthdayMonth;
     if (anniversaryMonth) params.anniversary_month = anniversaryMonth;
     api.get("/members", { params })
-      .then((r) => setMembers(r.data))
+      .then((r) => {
+        setMembers(r.data.items);
+        setTotal(r.data.total);
+        setPage(r.data.page);
+      })
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => { load(1); /* eslint-disable-next-line */ }, []);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
     <div data-testid="members-page">
@@ -66,7 +75,7 @@ export default function MembersList() {
               placeholder="Search by name, ID, phone, email…"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && load()}
+              onKeyDown={(e) => e.key === "Enter" && load(1)}
               data-testid="members-search-input"
             />
           </div>
@@ -84,10 +93,10 @@ export default function MembersList() {
           </select>
         </div>
         <div className="flex justify-end mt-3 gap-2">
-          <button className="btn-secondary text-sm flex items-center gap-2" onClick={() => { setQ(""); setStatus(""); setBirthdayMonth(""); setAnniversaryMonth(""); setTimeout(load, 0); }} data-testid="members-clear-filters">
+          <button className="btn-secondary text-sm flex items-center gap-2" onClick={() => { setQ(""); setStatus(""); setBirthdayMonth(""); setAnniversaryMonth(""); setTimeout(() => load(1), 0); }} data-testid="members-clear-filters">
             Clear
           </button>
-          <button className="btn-primary text-sm flex items-center gap-2" onClick={load} data-testid="members-apply-filters">
+          <button className="btn-primary text-sm flex items-center gap-2" onClick={() => load(1)} data-testid="members-apply-filters">
             <Filter className="w-4 h-4" /> Apply filters
           </button>
         </div>
@@ -134,6 +143,33 @@ export default function MembersList() {
           </tbody>
         </table>
       </div>
+
+      {!loading && total > 0 && (
+        <div className="flex items-center justify-between mt-4 text-sm" style={{ color: "var(--text-secondary)" }}>
+          <div>
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              className="btn-secondary text-sm"
+              onClick={() => load(page - 1)}
+              disabled={page <= 1}
+              data-testid="members-prev-page"
+            >
+              Previous
+            </button>
+            <span className="px-2">Page {page} of {totalPages}</span>
+            <button
+              className="btn-secondary text-sm"
+              onClick={() => load(page + 1)}
+              disabled={page >= totalPages}
+              data-testid="members-next-page"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
